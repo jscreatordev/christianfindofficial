@@ -1,0 +1,119 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Input Form</title>
+</head>
+<body>
+    <form action="/lyrics" method="post">
+        <label for="artistName">Enter Artist Name:</label>
+        <input type="text" id="artistName" name="artistName">
+        <label for="songName">Enter Song Name:</label>
+        <input type="text" id="songName" name="songName">
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+
+
+# raw code
+import lyricsgenius as lg
+
+genius = lg.Genius("rqfKquUR2OzxHVTSi9sv6k9EBJsIhXnUB8WlInEzODSB0eMBSlXujVbnyFX-gsHX")
+artist = genius.search_artist("Israel Houghton", max_songs=1, sort="title")
+song = artist.song("You are Good")
+
+
+
+print(song.lyrics)
+
+
+#with open ('lyrics.txt', "w") as f:
+    #f.write(song.lyrics)
+    
+    
+# Backup
+
+from flask import Flask, render_template, request
+import lyricsgenius as lg
+
+app = Flask(__name__, template_folder='templates')
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/process_form", methods=["POST"])
+def process_form():
+    songName = request.form.get("songName")
+    genius = lg.Genius("rqfKquUR2OzxHVTSi9sv6k9EBJsIhXnUB8WlInEzODSB0eMBSlXujVbnyFX-gsHX")
+    artist = genius.search_artist(songName, max_songs=1, sort="title")
+    song = artist.song("You are Good")
+    return render_template("lyrics.html", content=str(song.lyrics))
+
+if __name__ == "__main__":
+    app.run()
+    
+    
+"""<!-- lyrics.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hi</title>
+</head>
+<body>
+    <h1>Hi</h1>
+    <p>{{content}}</p>
+</body>
+</html>"""
+
+
+function openLyricsSite(title, artist) {
+    // Remove special characters from song title and artist
+    const cleanTitle = title.replace(/[\(\)&!.-/á']/g, '').trim();
+    const cleanArtist = artist.replace(/[\(\)&!.-/á']/g, '').trim();
+
+    const artistAndSong = `${cleanArtist.toLowerCase().replace(/\s/g, '')}/${cleanTitle.toLowerCase().replace(/\s/g, '')}`;
+    const lyricsSiteUrl = `https://www.azlyrics.com/lyrics/${artistAndSong}.html`;
+    window.open(lyricsSiteUrl);
+}
+
+
+
+
+# Working Flask code (Important)
+
+from flask import Flask, render_template, request
+import lyricsgenius as lg
+
+app = Flask(__name__, template_folder='templates')
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/lyrics", methods=["POST"])
+def process_form():
+    artistName = request.form.get("artistName")
+    songName = request.form.get("songName")
+    
+    genius = lg.Genius("rqfKquUR2OzxHVTSi9sv6k9EBJsIhXnUB8WlInEzODSB0eMBSlXujVbnyFX-gsHX")
+    artist = genius.search_artist(artistName, max_songs=1, sort="title")
+    song = artist.song(songName)
+    
+    return render_template("lyrics.html", content=str(song.lyrics))
+
+if __name__ == "__main__":
+    app.run()
+
+
+
+ <form action="/lyrics" method="post">
+        <label for="artistName">Enter Artist Name:</label>
+        <input type="text" id="artistName" name="artistName">
+        <label for="songName">Enter Song Name:</label>
+        <input type="text" id="songName" name="songName">
+        <input type="submit" value="Submit">
+    </form>

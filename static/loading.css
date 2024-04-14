@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,100&display=swap'); 
+ body,html{
+  margin: 0;
+  position: absolute; 
+  top: 50%; left: 50%; -ms-transform: 
+  translate(-50%, -50%); 
+  transform: translate(-50%, -50%);
+  background: white; font-family: 'Poppins', sans-serif;
+ }

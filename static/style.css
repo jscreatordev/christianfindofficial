@@ -314,3 +314,44 @@ body {
     color: blue;
 }
   
+
+input[type="text"] {
+	text-align: left;
+	font-size: 16px;
+	line-height: 24px;
+	font-family: Clash Display Semibold;
+	color: var(--black);
+	padding: 8px;
+	border-radius: 2px;
+	outline: 2px solid var(--gray);
+	cursor: pointer;
+	background: var(--light-gray);
+	transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.5), box-shadow 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.5);
+	width: fit-content;
+	margin: 8px 0 8px 0;
+	border: none;
+}
+
+input[type="text"]:hover {
+	transform: translateX(5px) translateY(-5px);
+	outline: 2px solid var(--black);
+	box-shadow: -5px 5px 0 0 var(--gray), -5px 5px 0 2px var(--black);
+}
+
+input[type="text"]:active {
+	box-shadow: -3px 3px 0 0 var(--gray), -3px 3px 0 2px var(--black) !important;
+	transform: translateX(2px) translateY(-2px) !important;
+	outline: 2px solid var(--black) !important;
+}
+
+.checkbox-container input[type="checkbox"]:focus-visible ~ checkmark {
+  box-shadow: -3px 3px 0 0 var(--gray), -3px 3px 0 1px var(--black);
+	transform: translateX(3px) translateY(-3px);
+}
+
+.checkbox-container:hover checkmark {
+  box-shadow: -3px 3px 0 0 var(--gray), -3px 3px 0 1px var(--black);
+	transform: translateX(3px) translateY(-3px);
+}
+
+

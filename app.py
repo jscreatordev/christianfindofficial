@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 import lyricsgenius as lg
 import csv
+import base64
 
-
+access_token = "LC2defTjjGgEM09GFXIhStvjR9d_YnZ3WArkc_yoW3aA1ewUgCbJGVk8k2BYuveo"
 app = Flask(__name__, template_folder='templates')
 
 # Define routes
@@ -24,13 +25,14 @@ def process_form():
             artistsDatabase.append(row)
         
         if any(artistName in sublist for sublist in artistsDatabase):
-            genius = lg.Genius("LC2defTjjGgEM09GFXIhStvjR9d_YnZ3WArkc_yoW3aA1ewUgCbJGVk8k2BYuveo")
+            genius = lg.Genius(access_token)
             artist = genius.search_artist(artistName, max_songs=1, sort="title")
             song = artist.song(songName)
         else:
             return render_template("404.html")
     
-    return render_template("lyrics.html", content=str(song.lyrics), song=songName+ " - " + artistName)
+    encoded_lyrics = base64.b64encode(song.lyrics.encode()).decode()
+    return render_template("lyrics.html", content=encoded_lyrics, song=songName+ " - " + artistName)
 
 @app.route('/receive_data', methods=['POST'])
 def receive_data():
@@ -48,26 +50,26 @@ def receive_data():
             if artist:
                 song = artist.song(song_name)
                 if song:
-                    return jsonify({'lyrics': song.lyrics})
+                    encoded_lyrics = base64.b64encode(song.lyrics.encode()).decode()
+                    return jsonify({'lyrics': encoded_lyrics})
 
         else:
             song = genius.search_song(song_name)
             if song:
-                return jsonify({'lyrics': song.lyrics})
+                encoded_lyrics = base64.b64encode(song.lyrics.encode()).decode()
+                return jsonify({'lyrics': encoded_lyrics})
 
     return jsonify({'error': 'Failed to retrieve lyrics'})
 
 @app.route("/lyrics")
 def lyrics():
     lyrics_data = request.args.get('lyrics')
-    content = lyrics_data if lyrics_data else "Lyrics not available" 
-    return render_template("lyrics.html", content=content, song=song_and_artist)
-
+    decoded_lyrics = base64.b64decode(lyrics_data).decode() if lyrics_data else "Lyrics not available"
+    return render_template("lyrics.html", content=decoded_lyrics, song=song_and_artist)
 
 @app.route("/loading")
 def loading():
     return render_template("loading.html")
 
-
-#if __name__ == "__main__":
-    #app.run(debug=True, port=8002)
+if __name__ == "__main__":
+    app.run(debug=True, port=8002)

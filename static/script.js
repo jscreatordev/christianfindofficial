@@ -1,5 +1,5 @@
 let originalSongList = [];
-
+generateSetlistURL()
 
 async function fetchAndProcessCSV() {
     const response = await fetch('/static/songs.csv'); // Updated fetch URL
@@ -36,6 +36,7 @@ function displayRandomLine() {
 
 function showSongList() {
     document.getElementById("songListPopup").style.display = "block";
+    generateSetlistURL()
 }
 
 function closeSongListPopup() {
@@ -80,6 +81,7 @@ function addToSetlist(song) {
     let selectedSongs = JSON.parse(localStorage.getItem('selectedSongs')) || [];
     selectedSongs.push(song);
     localStorage.setItem('selectedSongs', JSON.stringify(selectedSongs));
+    generateSetlistURL()
 }
 
 
@@ -279,11 +281,13 @@ function generateSetlistURL() {
         const encodedSetlist = encodeURIComponent(JSON.stringify(selectedSongs));
         const currentURL = window.location.href.split('?')[0]; // Remove existing query parameters if any
         const setlistURL = `${currentURL}?setlist=${encodedSetlist}`;
+        localStorage.setItem("setlist", setlistURL);
         return setlistURL;
     }
     return null;
 }
 
+var loc = location.href
 // Function to display the setlist from the URL parameters
 function displaySetlistFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -299,6 +303,8 @@ function displaySetlistFromURL() {
         setlistHTML += '</ul>';
         setlistContent.innerHTML = setlistHTML;
         setlistPopup.style.display = 'block';
+        loc = location.href;
+        localStorage.setItem("url", loc)
     }
 }
 
@@ -334,34 +340,42 @@ function copyToClipboard(text) {
 
   // Function to generate and share setlist URL
   function shareSetlist() {
-      const setlistURL = generateSetlistURL();
-      const url = "https://is.gd/create.php?format=json&url="+setlistURL;
-      fetch(url)
-    .then(response => {
-        if (!response.ok) {
-        throw new Error('Failed to fetch content');
-        }
-        return response.json();
-    })
-    .then(data => {
-        const shortenedURL = data.shorturl;
-        console.log("Shortened URL:", shortenedURL);
-        copyToClipboard(setlistURL);
+    generateSetlistURL()
+    var currentUrl = localStorage.getItem("setlist");;
+    fetch('http://tinyurl.com/api-create.php?url=' + encodeURIComponent(currentUrl))
+    .then(response => response.text())
+    .then(shorturl => {
+        var tempInput = document.createElement("input");
+        tempInput.value = shorturl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        var shareMessage = document.createElement("div");
+        shareMessage.textContent = "Shortened URL copied to clipboard!";
+        shareMessage.style.backgroundColor = "#4CAF50";
+        shareMessage.style.color = "white";
+        shareMessage.style.padding = "10px";
+        shareMessage.style.position = "fixed";
+        shareMessage.style.bottom = "10px";
+        shareMessage.style.left = "50%";
+        shareMessage.style.transform = "translateX(-50%)";
+        shareMessage.style.borderRadius = "5px";
+        document.body.appendChild(shareMessage);
+        setTimeout(function() {
+            document.body.removeChild(shareMessage);
+        }, 2000);
     })
     .catch(error => {
         console.error('Error:', error);
+        alert('An error occurred while shortening the URL.');
     });
-      if (setlistURL) {
-          // Open the generated setlist URL in a new tab
-          null
-      } else {
-          alert('No setlist available to share.');
-      }
-  }
+}
 
 
 
   function loadSongList() {
+    generateSetlistURL()
     const songList = document.getElementById("songList");
     songList.innerHTML = '';
     originalSongList.forEach((song, index) => {
@@ -436,6 +450,7 @@ function openLyricsSite(title, artist) {
     };
     xhr.send(JSON.stringify(dataToSend));
 }
+
 
 
 fetchAndProcessCSV();
